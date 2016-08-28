@@ -17,7 +17,7 @@ Installation
 * Create the `father` file at the root of the project :
   `$ echo "<MY_TELEGRAM_USER_ID>" > father`
 
-* Install `python3` et `pip3` si tu les as pas. Bon là tu te débrouilles parce que quand même tu es grand.
+* Install `python3` et `pip3` if you don't already have it.
 
 * Install dependancies :
   `pip3 install -r requirements.txt`
