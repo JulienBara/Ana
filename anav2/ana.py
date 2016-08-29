@@ -110,7 +110,7 @@ def insertMessageInDb(con, message: str) -> int:
 def speakIfNeeded(con, lastMessages: deque) -> str:
     cur = con.cursor()
     message = lastMessages[len(lastMessages)-1]
-    cur.execute("SELECT WM.Label, SUM(C.Weight) AS SumPotentialTriggerMessagesWeight FROM Clues C INNER JOIN Messages PTM ON C.PotentialTriggerMessageId = PTM.MessageId INNER JOIN Messages WM ON C.WinningMessageId = WM.MessageId WHERE ( ? LIKE '%' || PTM.Label || '%' OR PTM.Label LIKE '%' || ? || '%' ) AND WM.Label LIKE '% %' AND PTM.Label LIKE '% %' GROUP BY C.WinningMessageId HAVING SumPotentialTriggerMessagesWeight > ? ORDER BY SumPotentialTriggerMessagesWeight DESC", [message, message, CONST_MIN_ROBOT_MESSAGES_TO_ACCURACY_NUMBER])
+    cur.execute("SELECT WM.Label, SUM(C.Weight) AS SumPotentialTriggerMessagesWeight FROM Clues C INNER JOIN Messages PTM ON C.PotentialTriggerMessageId = PTM.MessageId INNER JOIN Messages WM ON C.WinningMessageId = WM.MessageId WHERE ( ? LIKE '%' || PTM.Label || '%' OR PTM.Label LIKE '%' || ? || '%' ) AND WM.Label LIKE '%__ __%' AND PTM.Label LIKE '%__ __%' GROUP BY C.WinningMessageId HAVING SumPotentialTriggerMessagesWeight > ? ORDER BY SumPotentialTriggerMessagesWeight DESC", [message, message, CONST_MIN_ROBOT_MESSAGES_TO_ACCURACY_NUMBER])
     result = cur.fetchall()
     if len(result) > 0 and result[0][1] >= CONST_MIN_ROBOT_MESSAGES_TO_ACCURACY_NUMBER:
         insertNewLastMessageInList(result[0][0], lastMessages)
