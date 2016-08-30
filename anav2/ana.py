@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 # Read key
-key = open('./key').read().splitlines()[0]
+key = open('key').read().splitlines()[0]
 FATHER_ID = float(open('father').read().splitlines()[0])
 print(FATHER_ID)
 
