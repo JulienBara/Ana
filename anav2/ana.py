@@ -10,6 +10,7 @@ import random
 CONST_MAX_LEARN_MESSAGES_NUMBER = 8
 CONST_MIN_ROBOT_MESSAGES_TO_ACCURACY_NUMBER = 1
 version = '2.1'
+mute = True
 
 lastMessagesDictionnary = dict()
 # lastMessages = deque([])
@@ -50,6 +51,23 @@ def updateAccuracyNumber(bot, update, args):
         pass  
     bot.sendMessage(chat_id, text=message)    
 
+def mute(bot, update):
+    chat_id = update.message.chat_id
+    if update.message.chat_id == FATHER_ID:
+        mute = True
+        message = "Ana muted"
+    else:
+        message = "You are not my father !"
+    bot.sendMessage(chat_id, text=message)
+
+def unmute(bot, update):
+    chat_id = update.message.chat_id
+    if update.message.chat_id == FATHER_ID:
+        mute = False
+        message = "Ana unmuted"
+    else:
+        message = "You are not my father !"
+    bot.sendMessage(chat_id, text=message)
 
 # External Functions
 def analyzeLastChatMessage(message: str, chat_id: str) -> str:
@@ -59,7 +77,10 @@ def analyzeLastChatMessage(message: str, chat_id: str) -> str:
     lastMessages = ifChatAlreadyExists(chat_id)
     insertNewLastMessageInList(message, lastMessages)
     learn(con, lastMessages)
-    message = speakIfNeeded(con, lastMessages)
+    if mute:
+        message = ""
+    else:
+        message = speakIfNeeded(con, lastMessages)
     return message
 
 
@@ -142,6 +163,8 @@ dispatcher = updater.dispatcher
 
 dispatcher.add_handler(CommandHandler('startAna', start))
 dispatcher.add_handler(CommandHandler('updateAccuracyNumber', updateAccuracyNumber, pass_args=True))
+dispatcher.add_handler(CommandHandler('mute', mute))
+dispatcher.add_handler(CommandHandler('unmute', unmute))
 dispatcher.add_handler(MessageHandler([Filters.text], ana))
 
 updater.start_polling()
