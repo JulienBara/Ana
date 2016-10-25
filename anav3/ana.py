@@ -95,11 +95,12 @@ def learn(message, chat_id, lastWords):
 
 
 def learnAState(word, lastWords):
-    if len(lastWords) < CONST_NUMBER_WORDS_MARKOV_STATE:    
-        # Some Logic here
-        return
+    if len(lastWords) == CONST_NUMBER_WORDS_MARKOV_STATE:
+        determiningStateId = database.findDeterminingStateId(lastWords)
+        database.computeDeterminedWord(word, determiningStateId)    
 
-    # determiningStateId = findDeterminingStateId(lastWords)
+
+    
 
 
 ########################################

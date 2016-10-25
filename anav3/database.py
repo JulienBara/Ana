@@ -60,15 +60,16 @@ def getWordIdByLabel(label: str) -> int:
     return db_session.query(Word).filter_by(label = label).first().wordId
 
 
-def findDeterminingState(lastWords):
-    from models import DeterminingWord, DeterminingState
-    query = select([determiningState]).join(Word)
+def findDeterminingStateId(lastWords):
+    from models import DeterminingWord, DeterminingState, Word
+    query = db_session.query(DeterminingState).join(DeterminingWord)
     n = len(lastWords)
     for (i,word) in enumerate(lastWords):
-        query = query.where(and_(label = word, order = n - i - 1))
+        # Disgusting but works for the moment
+        query = query.join(Word).filter_by(label = word).join(DeterminingWord).filter_by(order = n - i - 1)
     result = db_session.execute(query)
 
-    if result is not None:
+    if result.rowcount == -1:
         determiningState = DeterminingState()
         db_session.add(determiningState)
         db_session.commit()
@@ -80,8 +81,20 @@ def findDeterminingState(lastWords):
 
     return result.determiningStateId
 
-
     
 def saveLogWord(logWord):
     db_session.add(logWord)
+    db_session.commit()
+
+
+def computeDeterminedWord(word, determiningStateId):
+    from models import DeterminingWord, DeterminedWord
+    wordId = getWordIdByLabel(word)
+    if db_session.query(DeterminedWord).filter_by(determiningStateId = determiningStateId).filter_by(wordId = wordId).count() == 0:
+        determinedWord = DeterminedWord(determiningStateId = determiningStateId, wordId = wordId, number = 0, anger = 0, disgust = 0, fear = 0, joy = 0, sadness = 0)
+        db_session.add(determinedWord)
+        db_session.commit()
+    else:
+        determinedWord = db_session.query(DeterminedWord).filter_by(determiningStateId = determiningStateId).filter_by(wordId = wordId)
+    determinedWord.number += 1
     db_session.commit()

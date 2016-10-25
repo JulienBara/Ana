@@ -16,16 +16,16 @@ class DeterminedWord(Base):
     joy = Column(Float)
     sadness = Column(Float)
 
-    # # word = relationship("Word", back_populates="determinedWords")
+    # word = relationship("Word")
     # # determiningState = relationship("DeterminingState", back_populates="determinedWords")
 
-    def __init__(self, determiningStateId, word, number, anger, disgust, fear, joy, sadness):
+    def __init__(self, determiningStateId, wordId, number, anger, disgust, fear, joy, sadness):
         self.determiningStateId = determiningStateId
-        self.wordId = database.getWordIdByLabel(word)
-        self.number += number
-        self.anger += anger
-        self.disgust += disgust
-        self.fear += fear
+        self.wordId = wordId
+        self.number = number
+        self.anger = anger
+        self.disgust = disgust
+        self.fear = fear
         self.joy = joy
         self.sadness = sadness
 
@@ -35,7 +35,7 @@ class DeterminingState(Base):
     determiningStateId = Column(Integer, primary_key=True) #PK
 
     # determinedWords = relationship("DeterminedWord", order_by=DeterminedWord.determinedWordId, back_populates="determiningState")
-    # determiningWords = relationship("DeterminingdWord", order_by=DeterminingWord.determiningdWordId, back_populates="word")
+    # determiningWords = relationship("DeterminingWord", back_populates="determiningStates.determiningStateId")
 
     # def __init__(self):
 
@@ -44,8 +44,10 @@ class DeterminingWord(Base):
     __tablename__ = 'determiningWords'
     determiningWordId = Column(Integer, primary_key=True) #PK
     wordId = Column(Integer, ForeignKey('words.wordId')) #FK
-    determiningStateId = Column(Integer) #FK
+    determiningStateId = Column(Integer, ForeignKey('determiningStates.determiningStateId')) #FK
     order = Column(Integer)
+
+    # determiningState = relationship("DeterminingState", back_populates="determiningWords")
 
     # # word = relationship("Word", back_populates="determiningWords")
     #determiningState = relationship("DeterminingState", back_populates="determiningWord")
