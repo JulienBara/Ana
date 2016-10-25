@@ -1,3 +1,6 @@
 father
 *.db
 key
+anav3/test.py
+test.py
+*.pyc
