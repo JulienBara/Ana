@@ -60,8 +60,8 @@ def dropDb():
 
 def analyzeLastChatMessage(message: str, chat_id: str) -> str:
     logMessage(message, chat_id)
-    # lastWords = ifChatAlreadyExists(chat_id)
-    # learn(message, chat_id, lastWords)
+    lastWords = ifChatAlreadyExists(chat_id)
+    learn(message, chat_id, lastWords)
     # message = speakIfNeeded(con, lastMessages)
     # logMessage(message, chat_id)
     return message
@@ -83,7 +83,7 @@ def ifChatAlreadyExists(chat_id: str) -> deque:
 
 def insertNewLastWordInList(word: str, lastWords: deque):
     lastWords.append(word)
-    if len(lastMessages) > CONST_NUMBER_WORDS_MARKOV_STATE:
+    if len(lastWords) > CONST_NUMBER_WORDS_MARKOV_STATE:
         lastMessages.popleft()
 
 
@@ -96,9 +96,10 @@ def learn(message, chat_id, lastWords):
 
 def learnAState(word, lastWords):
     if len(lastWords) < CONST_NUMBER_WORDS_MARKOV_STATE:    
+        # Some Logic here
         return
 
-    determiningStateId = findDeterminingStateId(lastWords)
+    # determiningStateId = findDeterminingStateId(lastWords)
 
 
 ########################################
