@@ -62,7 +62,7 @@ def analyzeLastChatMessage(message: str, chat_id: str) -> str:
     logMessage(message, chat_id)
     lastWords = ifChatAlreadyExists(chat_id)
     learn(message, chat_id, lastWords)
-    # message = speakIfNeeded(con, lastMessages)
+    message = speakIfNeeded(lastWords)
     # logMessage(message, chat_id)
     return message
 
@@ -84,7 +84,7 @@ def ifChatAlreadyExists(chat_id: str) -> deque:
 def insertNewLastWordInList(word: str, lastWords: deque):
     lastWords.append(word)
     if len(lastWords) > CONST_NUMBER_WORDS_MARKOV_STATE:
-        lastMessages.popleft()
+        lastWords.popleft()
 
 
 def learn(message, chat_id, lastWords):
@@ -97,9 +97,19 @@ def learn(message, chat_id, lastWords):
 def learnAState(word, lastWords):
     if len(lastWords) == CONST_NUMBER_WORDS_MARKOV_STATE:
         determiningStateId = database.findDeterminingStateId(lastWords)
-        database.computeDeterminedWord(word, determiningStateId)    
+        database.addDeterminedWord(word, determiningStateId)    
 
 
+def speakIfNeeded(lastWords) -> str:
+    if len(lastWords) == CONST_NUMBER_WORDS_MARKOV_STATE:
+        message = "Reponse :"
+        for i in range(0,10):
+            words = database.findDeterminedWords(lastWords)
+            if(len(words) > 0):
+                message += words.index(0)
+        return message
+    else:
+        return "" 
     
 
 

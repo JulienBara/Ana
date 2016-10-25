@@ -60,13 +60,13 @@ def getWordIdByLabel(label: str) -> int:
     return db_session.query(Word).filter_by(label = label).first().wordId
 
 
-def findDeterminingStateId(lastWords):
+def findDeterminingStateId(lastWords) -> int:
     from models import DeterminingWord, DeterminingState, Word
-    query = db_session.query(DeterminingState).join(DeterminingWord)
+    query = db_session.query(DeterminingState).join(DeterminingWord).join(Word)
     n = len(lastWords)
     for (i,word) in enumerate(lastWords):
         # Disgusting but works for the moment
-        query = query.join(Word).filter_by(label = word).join(DeterminingWord).filter_by(order = n - i - 1)
+        query = query.filter(Word.label == word, DeterminingWord.order == n - i - 1)
     result = db_session.execute(query)
 
     if result.rowcount == -1:
@@ -87,7 +87,7 @@ def saveLogWord(logWord):
     db_session.commit()
 
 
-def computeDeterminedWord(word, determiningStateId):
+def addDeterminedWord(word, determiningStateId):
     from models import DeterminingWord, DeterminedWord
     wordId = getWordIdByLabel(word)
     if db_session.query(DeterminedWord).filter_by(determiningStateId = determiningStateId).filter_by(wordId = wordId).count() == 0:
@@ -98,3 +98,14 @@ def computeDeterminedWord(word, determiningStateId):
         determinedWord = db_session.query(DeterminedWord).filter_by(determiningStateId = determiningStateId).filter_by(wordId = wordId)
     determinedWord.number += 1
     db_session.commit()
+
+def findDeterminedWords(lastWords):
+    from models import DeterminedWord, Word, DeterminingState
+    determiningStateId = findDeterminingStateId(lastWords)
+    query = db_session.query(DeterminedWord).join(Word).join(DeterminingState).filter_by(determiningStateId = determiningStateId)
+    result = db_session.execute(query)
+    pairs = []
+    if result.rowcount is not -1:
+        for word in result:
+            pairs.append((word.label, word.number))
+    return pairs
