@@ -61,6 +61,7 @@ def dropDb():
 def analyzeLastChatMessage(message: str, chat_id: str) -> str:
     logMessage(message, chat_id)
     lastWords = ifChatAlreadyExists(chat_id)
+    message += " EOM"
     learn(message, chat_id, lastWords)
     message = speakIfNeeded(lastWords)
     # logMessage(message, chat_id)
@@ -103,10 +104,15 @@ def learnAState(word, lastWords):
 def speakIfNeeded(lastWords) -> str:
     if len(lastWords) == CONST_NUMBER_WORDS_MARKOV_STATE:
         message = "Reponse :"
-        for i in range(0,10):
+        i = 0
+        while True:
             words = database.findDeterminedWords(lastWords)
+            word = ""
             if(len(words) > 0):
-                message += words.index(0)
+                word = words.index(0)
+                message += word
+            if word is "EOM" or i > 10 or len(words) is 0:
+                break
         return message
     else:
         return "" 

@@ -59,14 +59,14 @@ def getWordIdByLabel(label: str) -> int:
         db_session.commit()
     return db_session.query(Word).filter_by(label = label).first().wordId
 
-
+#TODO HERE. The query try to matc every words and every orders at the same time
 def findDeterminingStateId(lastWords) -> int:
     from models import DeterminingWord, DeterminingState, Word
     query = db_session.query(DeterminingState).join(DeterminingWord).join(Word)
     n = len(lastWords)
     for (i,word) in enumerate(lastWords):
         # Disgusting but works for the moment
-        query = query.filter(Word.label == word, DeterminingWord.order == n - i - 1)
+        query = query.filter(Word.label == word, DeterminingWord.order == i)
     result = db_session.execute(query)
 
     if result.rowcount == -1:
@@ -74,7 +74,7 @@ def findDeterminingStateId(lastWords) -> int:
         db_session.add(determiningState)
         db_session.commit()
         for (i,word) in enumerate(lastWords):
-            determiningWord = DeterminingWord(word, determiningState.determiningStateId, n - i - 1)
+            determiningWord = DeterminingWord(word, determiningState.determiningStateId, i)
             db_session.add(determiningWord)
             db_session.commit()
         return determiningState.determiningStateId
