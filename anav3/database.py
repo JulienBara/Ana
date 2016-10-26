@@ -55,6 +55,9 @@ def getWordIdByLabel(label: str) -> int:
     from models import Word
     query = db_session.query(Word).filter_by(label = label)
     if query.count() == 0:
+        # to close query
+        result = db_session.execute(query)
+
         newWord = Word(label = label)
         db_session.add(newWord)
         db_session.commit()
@@ -70,9 +73,8 @@ def findDeterminingStateId(lastWords) -> int:
     query = db_session.query(DeterminingState.determiningStateId)
     for (i,word) in enumerate(lastWords):
         query = query.intersect(db_session.query(DeterminingState).join(DeterminingWord).join(Word).filter(Word.label == word, DeterminingWord.order == i).group_by(DeterminingState.determiningStateId))
-        queryTemp = db_session.query(DeterminingState).join(DeterminingWord).join(Word).filter(Word.label == word, DeterminingWord.order == i).group_by(DeterminingState.determiningStateId)
-        resultTemp = db_session.execute(queryTemp)
-        print(resultTemp)
+        # queryTemp = db_session.query(DeterminingState).join(DeterminingWord).join(Word).filter(Word.label == word, DeterminingWord.order == i).group_by(DeterminingState.determiningStateId)
+        # resultTemp = db_session.execute(queryTemp)
     
     if query.count() == 0:
         # to close query
@@ -80,10 +82,12 @@ def findDeterminingStateId(lastWords) -> int:
 
         determiningState = DeterminingState()
         db_session.add(determiningState)
+        db_session.flush()
         db_session.commit()
         for (i,word) in enumerate(lastWords):
             determiningWord = DeterminingWord(word, determiningState.determiningStateId, i)
             db_session.add(determiningWord)
+            db_session.flush()
             db_session.commit()
         return determiningState.determiningStateId
 
@@ -116,7 +120,7 @@ def findDeterminedWords(lastWords):
     query = db_session.query(DeterminedWord).join(Word).join(DeterminingState).add_columns(Word.label, DeterminedWord.number).filter_by(determiningStateId = determiningStateId)
     pairs = []
     if query.count() > 0:
-        for word in query.all():
+        for word in list(query.all()):
             pairs.append((word.label, word.number))
     # to close query
     result = db_session.execute(query)

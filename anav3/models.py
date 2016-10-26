@@ -37,7 +37,8 @@ class DeterminingState(Base):
     # determinedWords = relationship("DeterminedWord", order_by=DeterminedWord.determinedWordId, back_populates="determiningState")
     # determiningWords = relationship("DeterminingWord", back_populates="determiningStates.determiningStateId")
 
-    # def __init__(self):
+    def __init__(self):
+        self = self
 
 
 class DeterminingWord(Base):
