@@ -5,3 +5,4 @@ anav3/test.py
 test.py
 *.pyc
 anav3/.vscode/launch.json
+anav3/teste.db-journal

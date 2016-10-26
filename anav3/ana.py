@@ -8,19 +8,20 @@ from sqlalchemy.ext.declarative import declarative_base
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 import logging
+import random
 
 # Custom Imports
 import database
 from models import DeterminedWord, DeterminingState, DeterminingWord, Word, LogWord
 
-CONST_NUMBER_WORDS_MARKOV_STATE = 4
+CONST_NUMBER_WORDS_MARKOV_STATE = 2
 version = '3.0'
 
 lastWordsDictionnary = dict()
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 
 # Read key
@@ -103,6 +104,18 @@ def learnAState(word, lastWords):
         database.addDeterminedWord(word, determiningStateId)    
 
 
+def getBestWeightedRandomMessage(listWeightedMessages) -> str:
+    weightSum = 0
+    for(i, weightedMessage) in enumerate(listWeightedMessages):
+        weightSum += weightedMessage[1]
+    rand = random.uniform(0, weightSum)
+    weightSum = 0
+    for(i, weightedMessage) in enumerate(listWeightedMessages):
+        weightSum += weightedMessage[1]
+        if weightSum >= rand:
+            return weightedMessage[0]
+
+
 def speakIfNeeded(lastWords) -> str:
     if len(lastWords) == CONST_NUMBER_WORDS_MARKOV_STATE:
         message = " "
@@ -111,12 +124,12 @@ def speakIfNeeded(lastWords) -> str:
             words = database.findDeterminedWords(lastWords)
             word = ""
             if len(words) > 0:
-                word = words[0][0]
+                word = getBestWeightedRandomMessage(words)
                 insertNewLastWordInList(word, lastWords)                       
             if word == 'EOM':
                 break
             message = message + " " + word
-            if i > 10 or len(words) == 0:
+            if len(words) == 0: #i > 10 or 
                 break
             i = i + 1
         return message
