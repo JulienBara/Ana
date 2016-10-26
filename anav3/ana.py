@@ -13,13 +13,14 @@ import logging
 import database
 from models import DeterminedWord, DeterminingState, DeterminingWord, Word, LogWord
 
-CONST_NUMBER_WORDS_MARKOV_STATE = 8
+CONST_NUMBER_WORDS_MARKOV_STATE = 2
 version = '3.0'
 
 lastWordsDictionnary = dict()
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 
 # Read key
