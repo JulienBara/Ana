@@ -6,7 +6,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 engine = create_engine('sqlite:///./teste.db', echo=True)
 db_session = scoped_session(sessionmaker(autocommit=False,
-                                         autoflush=True,
+                                         autoflush=False,
                                          bind=engine))
 Base = declarative_base()
 Base.query = db_session.query_property()
@@ -53,11 +53,16 @@ def dropDb():
 
 def getWordIdByLabel(label: str) -> int:
     from models import Word
-    if db_session.query(Word).filter_by(label = label).count() == 0:
+    query = db_session.query(Word).filter_by(label = label)
+    if query.count() == 0:
         newWord = Word(label = label)
         db_session.add(newWord)
         db_session.commit()
-    return db_session.query(Word).filter_by(label = label).first().wordId
+        return newWord.wordId
+    wordId = query.first().wordId
+    # to close query
+    result = db_session.execute(query)
+    return wordId
 
 #TODO HERE. The query try to matc every words and every orders at the same time
 def findDeterminingStateId(lastWords) -> int:
@@ -68,8 +73,11 @@ def findDeterminingStateId(lastWords) -> int:
         queryTemp = db_session.query(DeterminingState).join(DeterminingWord).join(Word).filter(Word.label == word, DeterminingWord.order == i).group_by(DeterminingState.determiningStateId)
         resultTemp = db_session.execute(queryTemp)
         print(resultTemp)
-
+    
     if query.count() == 0:
+        # to close query
+        result = db_session.execute(query)
+
         determiningState = DeterminingState()
         db_session.add(determiningState)
         db_session.commit()
@@ -78,6 +86,7 @@ def findDeterminingStateId(lastWords) -> int:
             db_session.add(determiningWord)
             db_session.commit()
         return determiningState.determiningStateId
+
     number = query.first().determiningStateId
     # to close query
     result = db_session.execute(query)
@@ -104,10 +113,11 @@ def addDeterminedWord(word, determiningStateId):
 def findDeterminedWords(lastWords):
     from models import DeterminedWord, Word, DeterminingState
     determiningStateId = findDeterminingStateId(lastWords)
-    query = db_session.query(DeterminedWord).join(Word).join(DeterminingState).filter_by(determiningStateId = determiningStateId)
-    result = db_session.execute(query)
+    query = db_session.query(DeterminedWord).join(Word).join(DeterminingState).add_columns(Word.label, DeterminedWord.number).filter_by(determiningStateId = determiningStateId)
     pairs = []
-    if query.count() is not -1:
-        for word in result:
+    if query.count() > 0:
+        for word in query.all():
             pairs.append((word.label, word.number))
+    # to close query
+    result = db_session.execute(query)
     return pairs

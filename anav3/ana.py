@@ -13,7 +13,7 @@ import logging
 import database
 from models import DeterminedWord, DeterminingState, DeterminingWord, Word, LogWord
 
-CONST_NUMBER_WORDS_MARKOV_STATE = 2
+CONST_NUMBER_WORDS_MARKOV_STATE = 4
 version = '3.0'
 
 lastWordsDictionnary = dict()
@@ -65,8 +65,9 @@ def analyzeLastChatMessage(message: str, chat_id: str) -> str:
     message += " EOM"
     learn(message, chat_id, lastWords)
     message = speakIfNeeded(lastWords)
-    # logMessage(message, chat_id)
-    return message
+    if message != ' ':
+        logMessage(message, chat_id)
+        return message
 
 
 # Internal Functions
@@ -104,16 +105,20 @@ def learnAState(word, lastWords):
 
 def speakIfNeeded(lastWords) -> str:
     if len(lastWords) == CONST_NUMBER_WORDS_MARKOV_STATE:
-        message = "Reponse :"
+        message = " "
         i = 0
         while True:
             words = database.findDeterminedWords(lastWords)
             word = ""
-            if(len(words) > 0):
-                word = words.index(0)
-                message += word
-            if word is "EOM" or i > 10 or len(words) is 0:
+            if len(words) > 0:
+                word = words[0][0]
+                insertNewLastWordInList(word, lastWords)                       
+            if word == 'EOM':
                 break
+            message = message + " " + word
+            if i > 10 or len(words) == 0:
+                break
+            i = i + 1
         return message
     else:
         return "" 
