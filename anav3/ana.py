@@ -85,6 +85,7 @@ def analyzeLastChatMessage(message: str, chat_id: str) -> str:
     logMessage(message, chat_id)
     lastWords = ifChatAlreadyExists(chat_id)
     learn(message, chat_id, lastWords)
+    global mute
     if mute == False:
         message = speakIfNeeded(lastWords)
         if message != ' ':
