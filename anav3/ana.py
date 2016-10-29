@@ -14,8 +14,9 @@ import random
 import database
 from models import DeterminedWord, DeterminingState, DeterminingWord, Word, LogWord
 
-CONST_NUMBER_WORDS_MARKOV_STATE = 2
+CONST_NUMBER_WORDS_MARKOV_STATE = 4
 version = '3.0'
+mute = True
 
 lastWordsDictionnary = dict()
 
@@ -48,6 +49,21 @@ def ana(bot, update):
     chat_id = update.message.chat_id
     mot = update.message.text
     message = analyzeLastChatMessage(mot, chat_id)
+    if not mute:
+        bot.sendMessage(chat_id, text=message)
+
+
+def mute(bot, update):
+    chat_id = update.message.chat_id
+    mute = True
+    message = "Ana muted"
+    bot.sendMessage(chat_id, text=message)
+
+
+def unmute(bot, update):
+    chat_id = update.message.chat_id
+    mute = False
+    message = "Ana unmuted"
     bot.sendMessage(chat_id, text=message)
 
 
@@ -61,14 +77,15 @@ def dropDb():
 
 
 def analyzeLastChatMessage(message: str, chat_id: str) -> str:
+    message += " EOM"
     logMessage(message, chat_id)
     lastWords = ifChatAlreadyExists(chat_id)
-    message += " EOM"
     learn(message, chat_id, lastWords)
-    message = speakIfNeeded(lastWords)
-    if message != ' ':
-        logMessage(message, chat_id)
-        return message
+    if not mute:
+        message = speakIfNeeded(lastWords)
+        if message != ' ':
+            logMessage(message, chat_id)
+            return message
 
 
 # Internal Functions
@@ -146,6 +163,8 @@ dispatcher = updater.dispatcher
 
 dispatcher.add_handler(CommandHandler('startAna', start))
 dispatcher.add_handler(CommandHandler('dropDb', reinitAna))
+dispatcher.add_handler(CommandHandler('mute', mute))
+dispatcher.add_handler(CommandHandler('unmute', unmute))
 dispatcher.add_handler(MessageHandler([Filters.text], ana))
 
 updater.start_polling()
