@@ -67,6 +67,7 @@ def getWordIdByLabel(label: str) -> int:
     result = db_session.execute(query)
     return wordId
 
+
 def findDeterminingStateId(lastWords) -> int:
     from models import DeterminingWord, DeterminingState, Word
     query = db_session.query(DeterminingState.determiningStateId)
