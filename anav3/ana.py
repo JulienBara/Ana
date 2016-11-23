@@ -170,7 +170,7 @@ dispatcher.add_handler(CommandHandler('startAna', start))
 dispatcher.add_handler(CommandHandler('dropDb', reinitAna))
 dispatcher.add_handler(CommandHandler('mute', domute))
 dispatcher.add_handler(CommandHandler('unmute', unmute))
-dispatcher.add_handler(MessageHandler([Filters.text], ana))
+dispatcher.add_handler(MessageHandler(Filters.text, ana))
 
 updater.start_polling()
 updater.idle()
