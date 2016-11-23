@@ -21,8 +21,8 @@ mute = True
 
 lastWordsDictionnary = dict()
 
-# logging.basicConfig(level=logging.DEBUG,
-#                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 

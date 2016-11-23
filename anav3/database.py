@@ -4,7 +4,8 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 # from models import DeterminedWord, DeterminingState, DeterminingWord, Word, LogWord
 
-engine = create_engine('sqlite:///./teste.db', echo=True)
+#engine = create_engine('sqlite:///./teste.db', echo=True)
+engine = create_engine('sqlite:///./teste.db', echo=False)
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
                                          bind=engine))
