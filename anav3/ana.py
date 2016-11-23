@@ -15,9 +15,12 @@ import database
 from models import DeterminedWord, DeterminingState, DeterminingWord, Word, LogWord
 
 CONST_NUMBER_WORDS_MARKOV_STATE = 2
+CONST_NUMBER_SILENT_MESSAGES = 10
 version = '3.0'
 global mute
 mute = True
+global silentMessages
+silentMessages = 0
 
 lastWordsDictionnary = dict()
 
@@ -47,11 +50,17 @@ def reinitAna(bot, update):
 
 
 def ana(bot, update):
+    global mute
+    global silentMessages
+
     chat_id = update.message.chat_id
     mot = update.message.text
+    silentMessages -= 1
+
     message = analyzeLastChatMessage(mot, chat_id)
-    global mute
-    if mute == False:
+
+    if mute == False and silentMessages < 0:
+        silentMessages = CONST_NUMBER_SILENT_MESSAGES
         bot.sendMessage(chat_id, text=message)
 
 
