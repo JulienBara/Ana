@@ -90,12 +90,14 @@ def dropDb():
 
 
 def analyzeLastChatMessage(message: str, chat_id: str) -> str:
+    global mute
+    global silentMessages
+
     message += " EOM"
     logMessage(message, chat_id)
     lastWords = ifChatAlreadyExists(chat_id)
     learn(message, chat_id, lastWords)
-    global mute
-    if mute == False:
+    if mute == False and silentMessages < 0:
         message = speakIfNeeded(lastWords)
         if message != ' ':
             logMessage(message, chat_id)
