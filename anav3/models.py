@@ -75,8 +75,13 @@ class LogWord(Base):
     __tablename__ = 'logWords'
     logWordId = Column(Integer, primary_key=True) #PK
     chatId = Column(Integer)
-    wordId = Column(Integer) 
+    wordId = Column(Integer, ForeignKey('words.wordId')) #FK
 
     def __init__(self, chatId, word):
         self.chatId = chatId
         self.wordId = database.getWordIdByLabel(word)
+
+class MaxMarkovDegree(Base):
+    __tablename__ = 'maxMarkovDegree'
+    maxMarkovDegreeId = Column(Integer, primary_key=True)  # PK
+    maxMarkovDegree = Column(Integer)

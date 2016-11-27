@@ -4,8 +4,8 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 # from models import DeterminedWord, DeterminingState, DeterminingWord, Word, LogWord
 
-#engine = create_engine('sqlite:///./teste.db', echo=True)
-engine = create_engine('sqlite:///./teste.db', echo=False)
+engine = create_engine('sqlite:///./teste.db', echo=True)
+# engine = create_engine('sqlite:///./teste.db', echo=False)
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
                                          bind=engine))
@@ -52,6 +52,23 @@ def dropDb():
     Base.metadata.drop_all(bind=engine)
 
 
+def clearDeterminedWord():
+    from models import DeterminedWord
+    DeterminedWord.__table__.drop(engine)
+    DeterminedWord.__table__.create(engine)
+
+
+def clearDeterminingWord():
+    from models import DeterminingWord
+    DeterminingWord.__table__.drop(engine)
+    DeterminingWord.__table__.create(engine)
+
+def clearDeterminingState():
+    from models import DeterminingState
+    DeterminingState.__table__.drop(engine)
+    DeterminingState.__table__.create(engine)
+
+
 def getWordIdByLabel(label: str) -> int:
     from models import Word
     query = db_session.query(Word).filter_by(label = label)
@@ -71,9 +88,11 @@ def getWordIdByLabel(label: str) -> int:
 
 def findDeterminingStateId(lastWords) -> int:
     from models import DeterminingWord, DeterminingState, Word
+    n = len(lastWords)
+
     query = db_session.query(DeterminingState.determiningStateId)
     for (i,word) in enumerate(lastWords):
-        query = query.intersect(db_session.query(DeterminingState).join(DeterminingWord).join(Word).filter(Word.label == word, DeterminingWord.order == i).group_by(DeterminingState.determiningStateId))
+        query = query.intersect(db_session.query(DeterminingState).join(DeterminingWord).join(Word).filter(Word.label == word, DeterminingWord.order == n - i - 1).group_by(DeterminingState.determiningStateId))
     
     if query.count() == 0:
         # to close query
@@ -84,7 +103,7 @@ def findDeterminingStateId(lastWords) -> int:
         db_session.flush()
         db_session.commit()
         for (i,word) in enumerate(lastWords):
-            determiningWord = DeterminingWord(word, determiningState.determiningStateId, i)
+            determiningWord = DeterminingWord(word, determiningState.determiningStateId, n - i - 1)
             db_session.add(determiningWord)
             db_session.flush()
             db_session.commit()
@@ -99,6 +118,20 @@ def findDeterminingStateId(lastWords) -> int:
 def saveLogWord(logWord):
     db_session.add(logWord)
     db_session.commit()
+
+
+def getLogWords():
+    from models import LogWord, Word
+
+    logWords = db_session.query(LogWord).join(Word).add_columns(LogWord.chatId, Word.label)
+
+    ss = []
+
+    for (i, logword) in enumerate(logWords):
+        ss.append(logword)
+
+    return ss
+
 
 
 def addDeterminedWord(word, determiningStateId):
@@ -124,3 +157,21 @@ def findDeterminedWords(lastWords):
     # to close query
     result = db_session.execute(query)
     return pairs
+
+def getMaxMarkovDegree():
+    from models import MaxMarkovDegree
+    query = db_session.query(MaxMarkovDegree)
+    # print (str(query))
+    # print (str(query.first()))
+    # print(str(query.count()))
+    # result = db_session.execute(query)
+    # print (result)
+    # print (result.first())
+    return query.first().maxMarkovDegree
+
+def setMaxMarkovDegree(newMaxMarkovDegree):
+    from models import MaxMarkovDegree
+    query = db_session.query(MaxMarkovDegree).first()
+    query.maxMarkovDegree = newMaxMarkovDegree
+    db_session.commit()
+

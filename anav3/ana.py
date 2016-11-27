@@ -80,6 +80,24 @@ def unmute(bot, update):
     bot.sendMessage(chat_id, text=message)
 
 
+def changeMarkovDegree(bot, update, args):
+    chat_id = update.message.chat_id
+    new_degree = int(args[0])
+
+    CONST_NUMBER_WORDS_MARKOV_STATE = new_degree
+    maxConst = database.getMaxMarkovDegree()
+    if new_degree > maxConst:
+        database.clearDeterminedWord()
+        database.clearDeterminingWord()
+        database.clearDeterminingState()
+        chargeLogs()
+        database.setMaxMarkovDegree()
+
+
+    message = "Markov Degree Changed"
+    bot.sendMessage(chat_id, text=message)
+
+
 # External Functions
 def initAna():
     database.initDb()
@@ -167,7 +185,17 @@ def speakIfNeeded(lastWords) -> str:
             i = i + 1
         return message
     else:
-        return "" 
+        return ""
+
+def chargeLogs():
+    logwords = database.getLogWords()
+
+    for logword in logwords:
+        lastWords = ifChatAlreadyExists(logword.chatId)
+        learn(logword.label, logword.chatId, lastWords)
+
+
+
     
 
 
@@ -181,6 +209,7 @@ dispatcher.add_handler(CommandHandler('startAna', start))
 dispatcher.add_handler(CommandHandler('dropDb', reinitAna))
 dispatcher.add_handler(CommandHandler('mute', domute))
 dispatcher.add_handler(CommandHandler('unmute', unmute))
+dispatcher.add_handler(CommandHandler('changeMarkov', changeMarkovDegree, pass_args=True))
 dispatcher.add_handler(MessageHandler(Filters.text, ana))
 
 updater.start_polling()
