@@ -14,6 +14,7 @@ import random
 import database
 from models import DeterminedWord, DeterminingState, DeterminingWord, Word, LogWord
 
+global CONST_NUMBER_WORDS_MARKOV_STATE
 CONST_NUMBER_WORDS_MARKOV_STATE = 2
 CONST_NUMBER_SILENT_MESSAGES = 10
 version = '3.0'
@@ -81,6 +82,8 @@ def unmute(bot, update):
 
 
 def changeMarkovDegree(bot, update, args):
+    global CONST_NUMBER_WORDS_MARKOV_STATE
+    
     chat_id = update.message.chat_id
     new_degree = int(args[0])
 
