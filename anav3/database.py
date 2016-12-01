@@ -138,13 +138,13 @@ def addDeterminedWord(word, determiningStateId):
     from models import DeterminingWord, DeterminedWord
     wordId = getWordIdByLabel(word)
     if db_session.query(DeterminedWord).filter_by(determiningStateId = determiningStateId).filter_by(wordId = wordId).count() == 0:
-        determinedWord = DeterminedWord(determiningStateId = determiningStateId, wordId = wordId, number = 0, anger = 0, disgust = 0, fear = 0, joy = 0, sadness = 0)
+        determinedWord = DeterminedWord(determiningStateId = determiningStateId, wordId = wordId, number = 1, anger = 0, disgust = 0, fear = 0, joy = 0, sadness = 0)
         db_session.add(determinedWord)
         db_session.commit()
     else:
         determinedWord = db_session.query(DeterminedWord).filter_by(determiningStateId = determiningStateId).filter_by(wordId = wordId).first()
-    determinedWord.number = determinedWord.number + 1
-    db_session.commit()
+        determinedWord.number = determinedWord.number + 1
+        db_session.commit()
 
 def findDeterminedWords(lastWords):
     from models import DeterminedWord, Word, DeterminingState
@@ -161,12 +161,6 @@ def findDeterminedWords(lastWords):
 def getMaxMarkovDegree():
     from models import MaxMarkovDegree
     query = db_session.query(MaxMarkovDegree)
-    # print (str(query))
-    # print (str(query.first()))
-    # print(str(query.count()))
-    # result = db_session.execute(query)
-    # print (result)
-    # print (result.first())
     return query.first().maxMarkovDegree
 
 def setMaxMarkovDegree(newMaxMarkovDegree):

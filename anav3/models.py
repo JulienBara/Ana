@@ -24,7 +24,7 @@ class DeterminedWord(Base):
         self.wordId = wordId
         self.number = number
         self.anger = anger
-        self.disgust = disgust
+        self.digust = disgust
         self.fear = fear
         self.joy = joy
         self.sadness = sadness
