@@ -10,3 +10,5 @@ keys/
 
 # Project file
 *.pyproj
+*.sln
+.vs/
