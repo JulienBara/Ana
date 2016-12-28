@@ -33,7 +33,7 @@ logging.basicConfig(level=logging.DEBUG,
 
 
 # Read key
-key = open('key').read().splitlines()[0]
+key = open('keys/key').read().splitlines()[0]
 
 
 # Basic commands 
