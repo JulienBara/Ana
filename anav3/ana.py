@@ -7,6 +7,8 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
+from telegram import ChatAction
+
 import logging
 import random
 
@@ -56,13 +58,17 @@ def ana(bot, update):
 
     chat_id = update.message.chat_id
     mot = update.message.text
+    if update.message.reply_to_message is not None:
+        if update.message.reply_to_message.from_user.name == '@An4bot':
+            silentMessages = 0
     silentMessages -= 1
 
-    message = analyzeLastChatMessage(mot, chat_id)
+    message = analyzeLastChatMessage(mot, chat_id, bot)
 
     if mute == False and silentMessages < 0:
         silentMessages = CONST_NUMBER_SILENT_MESSAGES
-        bot.sendMessage(chat_id, text=message)
+        # bot.sendMessage(chat_id, text=message)
+        update.message.reply_text(message)
 
 
 def domute(bot, update):
@@ -109,7 +115,7 @@ def dropDb():
     database.dropDb()
 
 
-def analyzeLastChatMessage(message: str, chat_id: str) -> str:
+def analyzeLastChatMessage(message: str, chat_id: str, bot) -> str:
     global mute
     global silentMessages
 
@@ -118,6 +124,7 @@ def analyzeLastChatMessage(message: str, chat_id: str) -> str:
     lastWords = ifChatAlreadyExists(chat_id)
     learn(message, chat_id, lastWords)
     if mute == False and silentMessages < 0:
+        bot.sendChatAction(chat_id=chat_id, action=ChatAction.TYPING)
         message = speakIfNeeded(lastWords)
         if message != ' ':
             logMessage(message, chat_id)
