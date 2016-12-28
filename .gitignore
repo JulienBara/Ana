@@ -1,5 +1,12 @@
+# DB related files
 *.db
-*.pyc
-keys/
-*.pyproj
 *.db-journal
+
+# Pyc file
+*.pyc
+
+# Keys
+keys/
+
+# Project file
+*.pyproj
