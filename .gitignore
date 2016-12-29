@@ -12,3 +12,5 @@ keys/
 *.pyproj
 *.sln
 .vs/
+Ana/
+WorkerRole1/
