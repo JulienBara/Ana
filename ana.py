@@ -65,6 +65,10 @@ def ana(bot, update):
 
     message = analyzeLastChatMessage(mot, chat_id, bot)
 
+
+
+
+
     if mute == False and silentMessages < 0:
         silentMessages = CONST_NUMBER_SILENT_MESSAGES
         # bot.sendMessage(chat_id, text=message)
