@@ -87,27 +87,25 @@ def findDeterminingStateId(lastWords) -> int:
     n = len(lastWords)
 
     query = db_session.query(DeterminingState.determiningStateId)
-    for (i,word) in enumerate(lastWords):
-        query = query.intersect(db_session.query(DeterminingState).join(DeterminingWord).join(Word).filter(Word.label == word, DeterminingWord.order == n - i - 1).group_by(DeterminingState.determiningStateId))
+    for (i, word) in enumerate(lastWords):
+        query = query.intersect(db_session.query(DeterminingState)
+                                .join(DeterminingWord)
+                                .join(Word)
+                                .filter(Word.label == word, DeterminingWord.order == n - i - 1)
+                                .group_by(DeterminingState.determiningStateId))
     
     if query.count() == 0:
-        # to close query
-        result = db_session.execute(query)
-
-        determiningState = DeterminingState()
-        db_session.add(determiningState)
+        determining_state = DeterminingState()
+        db_session.add(determining_state)
+        for (i, word) in enumerate(lastWords):
+            determining_word = DeterminingWord(word, n - i - 1)
+            determining_state.determiningWords.append(determining_word)
+            db_session.add(determining_word)
         db_session.flush()
         db_session.commit()
-        for (i,word) in enumerate(lastWords):
-            determiningWord = DeterminingWord(word, determiningState.determiningStateId, n - i - 1)
-            db_session.add(determiningWord)
-            db_session.flush()
-            db_session.commit()
-        return determiningState.determiningStateId
-
+        determining_state_id = determining_state.determiningStateId
+        return determining_state_id
     number = query.first().determiningStateId
-    # to close query
-    result = db_session.execute(query)
     return number
 
     
