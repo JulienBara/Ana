@@ -54,7 +54,7 @@ class DeterminingWord(Base):
     #determiningState = relationship("DeterminingState", back_populates="determiningWord")
 
     def __init__(self, word, determiningStateId, order):
-        self.wordId = database.getWordIdByLabel(word)
+        self.wordId = database.get_word_id_by_label(word)
         self.determiningStateId = determiningStateId
         self.order = order
 
@@ -79,7 +79,7 @@ class LogWord(Base):
 
     def __init__(self, chatId, word):
         self.chatId = chatId
-        self.wordId = database.getWordIdByLabel(word)
+        self.wordId = database.get_word_id_by_label(word)
 
 class MaxMarkovDegree(Base):
     __tablename__ = 'maxMarkovDegree'

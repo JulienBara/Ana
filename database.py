@@ -69,7 +69,7 @@ def clearDeterminingState():
     DeterminingState.__table__.create(engine)
 
 
-def getWordIdByLabel(label: str) -> int:
+def get_word_id_by_label(label: str) -> int:
     from models import Word
     query = db_session.query(Word).filter_by(label=label)
     if query.count() == 0:
@@ -132,7 +132,7 @@ def getLogWords():
 
 def addDeterminedWord(word, determiningStateId):
     from models import DeterminingWord, DeterminedWord
-    wordId = getWordIdByLabel(word)
+    wordId = get_word_id_by_label(word)
     if db_session.query(DeterminedWord).filter_by(determiningStateId = determiningStateId).filter_by(wordId = wordId).count() == 0:
         determinedWord = DeterminedWord(determiningStateId = determiningStateId, wordId = wordId, number = 1, anger = 0, disgust = 0, fear = 0, joy = 0, sadness = 0)
         db_session.add(determinedWord)
