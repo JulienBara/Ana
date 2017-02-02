@@ -1,42 +1,49 @@
-# Library Imports
+# --------------------------
+#  Imports
+# --------------------------
+
+# Library imports
 from collections import deque
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-
-from telegram import ChatAction
-
 import logging
 import random
+from telegram import ChatAction
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-# Custom Imports
+# Custom imports
 import database
 
 
+# --------------------------
+#  Inits
+# --------------------------
+
+# Declare consts
+CONST_NUMBER_SILENT_MESSAGES = 10
+
+# Declare globals and init
 global CONST_NUMBER_WORDS_MARKOV_STATE
 CONST_NUMBER_WORDS_MARKOV_STATE = database.getMaxMarkovDegree()
-CONST_NUMBER_SILENT_MESSAGES = 10
-version = '3.0'
+
 global mute
 mute = True
+
 global silentMessages
 silentMessages = 0
 
 lastWordsDictionnary = dict()
 
+key = open('keys/key').read().splitlines()[0]
+
+
+# Set logging level
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
+# --------------------------
+#  Basic commands
+# --------------------------
 
-# Read key
-key = open('keys/key').read().splitlines()[0]
-
-
-# Basic commands 
 def start(bot, update):
     chat_id = update.message.chat_id
     initAna()
@@ -64,10 +71,6 @@ def ana(bot, update):
     silentMessages -= 1
 
     message = analyzeLastChatMessage(mot, chat_id, bot)
-
-
-
-
 
     if mute == False and silentMessages < 0:
         silentMessages = CONST_NUMBER_SILENT_MESSAGES
@@ -109,8 +112,10 @@ def changeMarkovDegree(bot, update, args):
     message = "Markov Degree Changed"
     bot.sendMessage(chat_id, text=message)
 
+# --------------------------
+#  External Functions
+# --------------------------
 
-# External Functions
 def initAna():
     database.initDb()
 
@@ -135,7 +140,10 @@ def analyzeLastChatMessage(message: str, chat_id: str, bot) -> str:
             return message
 
 
-# Internal Functions
+# --------------------------
+#  Internal Functions
+# --------------------------
+
 def logMessage(message: str, chat_id: str):
     words = message.split()
     for word in words:
@@ -164,16 +172,16 @@ def learn(message, chat_id, lastWords):
 def learnAState(word, lastWords):
     if len(lastWords) == CONST_NUMBER_WORDS_MARKOV_STATE:
         determiningStateId = database.find_determining_state_id(lastWords)
-        database.addDeterminedWord(word, determiningStateId)    
+        database.addDeterminedWord(word, determiningStateId)
 
 
 def getBestWeightedRandomMessage(listWeightedMessages) -> str:
     weightSum = 0
-    for(i, weightedMessage) in enumerate(listWeightedMessages):
+    for (i, weightedMessage) in enumerate(listWeightedMessages):
         weightSum += weightedMessage[1]
     rand = random.uniform(0, weightSum)
     weightSum = 0
-    for(i, weightedMessage) in enumerate(listWeightedMessages):
+    for (i, weightedMessage) in enumerate(listWeightedMessages):
         weightSum += weightedMessage[1]
         if weightSum >= rand:
             return weightedMessage[0]
@@ -188,16 +196,17 @@ def speakIfNeeded(lastWords) -> str:
             word = ""
             if len(words) > 0:
                 word = getBestWeightedRandomMessage(words)
-                insertNewLastWordInList(word, lastWords)                       
+                insertNewLastWordInList(word, lastWords)
             if word == 'EOM':
                 break
             message = message + " " + word
-            if len(words) == 0: #i > 10 or 
+            if len(words) == 0:  # i > 10 or
                 break
             i = i + 1
         return message
     else:
         return ""
+
 
 def chargeLogs():
     logwords = database.get_log_words()
@@ -207,12 +216,9 @@ def chargeLogs():
         learn(logword.label, logword.chatId, lastWords)
 
 
-
-    
-
-
-########################################
-
+# --------------------------
+#  Set up process
+# --------------------------
 
 updater = Updater(key)
 dispatcher = updater.dispatcher

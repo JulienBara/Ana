@@ -129,7 +129,7 @@ def get_log_words():
 
     for (i, log_word) in enumerate(log_words):
         ss.append(log_word)
-        
+
     return ss
 
 
