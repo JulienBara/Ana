@@ -14,7 +14,7 @@ import random
 
 # Custom Imports
 import database
-from models import DeterminedWord, DeterminingState, DeterminingWord, Word, LogWord
+
 
 global CONST_NUMBER_WORDS_MARKOV_STATE
 CONST_NUMBER_WORDS_MARKOV_STATE = database.getMaxMarkovDegree()
@@ -139,8 +139,7 @@ def analyzeLastChatMessage(message: str, chat_id: str, bot) -> str:
 def logMessage(message: str, chat_id: str):
     words = message.split()
     for word in words:
-        loggedWord = LogWord(int(chat_id), word)
-        database.saveLogWord(loggedWord)
+        database.save_log_word(int(chat_id), word)
 
 
 def ifChatAlreadyExists(chat_id: str) -> deque:

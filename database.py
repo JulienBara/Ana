@@ -115,8 +115,11 @@ def find_determining_state_id(last_words) -> int:
     return determining_state_id
 
     
-def saveLogWord(logWord):
-    db_session.add(logWord)
+def save_log_word(chat_id: int, word_label: str):
+    from models import LogWord
+    logged_word = LogWord(int(chat_id), word_label)
+    db_session.add(logged_word)
+    db_session.flush()
     db_session.commit()
 
 
