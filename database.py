@@ -71,14 +71,15 @@ def clearDeterminingState():
 
 def getWordIdByLabel(label: str) -> int:
     from models import Word
-    query = db_session.query(Word).filter_by(label = label)
+    query = db_session.query(Word).filter_by(label=label)
     if query.count() == 0:
-        newWord = Word(label = label)
-        db_session.add(newWord)
+        new_word = Word(label=label)
+        db_session.add(new_word)
+        db_session.flush()
         db_session.commit()
-        return newWord.wordId
-    wordId = query.first().wordId
-    return wordId
+        return new_word.wordId
+    word_id = query.first().wordId
+    return word_id
 
 
 def findDeterminingStateId(lastWords) -> int:
@@ -156,11 +157,13 @@ def findDeterminedWords(lastWords):
 def getMaxMarkovDegree():
     from models import MaxMarkovDegree
     query = db_session.query(MaxMarkovDegree)
-    return query.first().maxMarkovDegree
+    degree = query.first().maxMarkovDegree
+    return degree
 
 def setMaxMarkovDegree(newMaxMarkovDegree):
     from models import MaxMarkovDegree
     query = db_session.query(MaxMarkovDegree).first()
     query.maxMarkovDegree = newMaxMarkovDegree
     db_session.commit()
+
 
