@@ -73,16 +73,11 @@ def getWordIdByLabel(label: str) -> int:
     from models import Word
     query = db_session.query(Word).filter_by(label = label)
     if query.count() == 0:
-        # to close query
-        result = db_session.execute(query)
-
         newWord = Word(label = label)
         db_session.add(newWord)
         db_session.commit()
         return newWord.wordId
     wordId = query.first().wordId
-    # to close query
-    result = db_session.execute(query)
     return wordId
 
 
