@@ -200,7 +200,7 @@ def speakIfNeeded(lastWords) -> str:
         return ""
 
 def chargeLogs():
-    logwords = database.getLogWords()
+    logwords = database.get_log_words()
 
     for logword in logwords:
         lastWords = ifChatAlreadyExists(logword.chatId)

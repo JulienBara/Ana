@@ -75,7 +75,6 @@ def get_word_id_by_label(label: str) -> int:
     if query.count() == 0:
         new_word = Word(label=label)
         db_session.add(new_word)
-        db_session.flush()
         db_session.commit()
         return new_word.wordId
     word_id = query.first().wordId
@@ -105,7 +104,6 @@ def find_determining_state_id(last_words) -> int:
             determining_word = DeterminingWord(word, n - i - 1)
             determining_state.determiningWords.append(determining_word)
             db_session.add(determining_word)
-        db_session.flush()
         db_session.commit()
         determining_state_id = determining_state.determiningStateId
         return determining_state_id
@@ -117,24 +115,22 @@ def find_determining_state_id(last_words) -> int:
     
 def save_log_word(chat_id: int, word_label: str):
     from models import LogWord
+
     logged_word = LogWord(int(chat_id), word_label)
     db_session.add(logged_word)
-    db_session.flush()
     db_session.commit()
 
 
-def getLogWords():
+def get_log_words():
     from models import LogWord, Word
 
-    logWords = db_session.query(LogWord).join(Word).add_columns(LogWord.chatId, Word.label)
-
+    log_words = db_session.query(LogWord).join(Word).add_columns(LogWord.chatId, Word.label)
     ss = []
 
-    for (i, logword) in enumerate(logWords):
-        ss.append(logword)
-
+    for (i, log_word) in enumerate(log_words):
+        ss.append(log_word)
+        
     return ss
-
 
 
 def addDeterminedWord(word, determiningStateId):
