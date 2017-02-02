@@ -62,7 +62,8 @@ def find_determining_state_id(last_words) -> int:
     # forge query
     query = db_session.query(DeterminingState.determiningStateId)
     for (i, word) in enumerate(last_words):
-        query = query.intersect(db_session.query(DeterminingState)
+        query = query.intersect(db_session
+                                .query(DeterminingState)
                                 .join(DeterminingWord)
                                 .join(Word)
                                 .filter(Word.label == word, DeterminingWord.order == n - i - 1)
@@ -96,7 +97,11 @@ def save_log_word(chat_id: int, word_label: str):
 def get_log_words():
     from models import LogWord, Word
 
-    log_words = db_session.query(LogWord).join(Word).add_columns(LogWord.chatId, Word.label)
+    log_words = db_session\
+        .query(LogWord)\
+        .join(Word)\
+        .add_columns(LogWord.chatId, Word.label)
+
     ss = []
 
     for (i, log_word) in enumerate(log_words):
@@ -107,13 +112,20 @@ def get_log_words():
 
 def addDeterminedWord(word, determiningStateId):
     from models import DeterminingWord, DeterminedWord
-    wordId = get_word_id_by_label(word)
-    if db_session.query(DeterminedWord).filter_by(determiningStateId = determiningStateId).filter_by(wordId = wordId).count() == 0:
-        determinedWord = DeterminedWord(determiningStateId = determiningStateId, wordId = wordId, number = 1, anger = 0, disgust = 0, fear = 0, joy = 0, sadness = 0)
+
+    word_id = get_word_id_by_label(word)
+
+    query = db_session\
+        .query(DeterminedWord)\
+        .filter_by(determiningStateId=determiningStateId)\
+        .filter_by(wordId=word_id)\
+
+    if query.count() == 0:
+        determinedWord = DeterminedWord(determiningStateId = determiningStateId, wordId = word_id, number = 1, anger = 0, disgust = 0, fear = 0, joy = 0, sadness = 0)
         db_session.add(determinedWord)
         db_session.commit()
     else:
-        determinedWord = db_session.query(DeterminedWord).filter_by(determiningStateId = determiningStateId).filter_by(wordId = wordId).first()
+        determinedWord = db_session.query(DeterminedWord).filter_by(determiningStateId = determiningStateId).filter_by(wordId = word_id).first()
         determinedWord.number = determinedWord.number + 1
         db_session.commit()
 
