@@ -110,10 +110,10 @@ def get_log_words():
     return ss
 
 
-def addDeterminedWord(word, determiningStateId):
-    from models import DeterminingWord, DeterminedWord
+def add_determined_word(word_label: str, determiningStateId: int):
+    from models import DeterminedWord
 
-    word_id = get_word_id_by_label(word)
+    word_id = get_word_id_by_label(word_label)
 
     query = db_session\
         .query(DeterminedWord)\
@@ -121,13 +121,23 @@ def addDeterminedWord(word, determiningStateId):
         .filter_by(wordId=word_id)\
 
     if query.count() == 0:
-        determinedWord = DeterminedWord(determiningStateId = determiningStateId, wordId = word_id, number = 1, anger = 0, disgust = 0, fear = 0, joy = 0, sadness = 0)
-        db_session.add(determinedWord)
+        determined_word = DeterminedWord(
+            determiningStateId=determiningStateId,
+            wordId=word_id,
+            number=1,
+            anger=0,
+            disgust=0,
+            fear=0,
+            joy=0,
+            sadness=0)
+        db_session.add(determined_word)
         db_session.commit()
+
     else:
-        determinedWord = db_session.query(DeterminedWord).filter_by(determiningStateId = determiningStateId).filter_by(wordId = word_id).first()
-        determinedWord.number = determinedWord.number + 1
+        determined_word = query.first()
+        determined_word.number += 1
         db_session.commit()
+
 
 def findDeterminedWords(lastWords):
     from models import DeterminedWord, Word, DeterminingState
