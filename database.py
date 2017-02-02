@@ -82,22 +82,26 @@ def get_word_id_by_label(label: str) -> int:
     return word_id
 
 
-def findDeterminingStateId(lastWords) -> int:
+def find_determining_state_id(last_words) -> int:
     from models import DeterminingWord, DeterminingState, Word
-    n = len(lastWords)
 
+    # get Markov's order
+    n = len(last_words)
+
+    # forge query
     query = db_session.query(DeterminingState.determiningStateId)
-    for (i, word) in enumerate(lastWords):
+    for (i, word) in enumerate(last_words):
         query = query.intersect(db_session.query(DeterminingState)
                                 .join(DeterminingWord)
                                 .join(Word)
                                 .filter(Word.label == word, DeterminingWord.order == n - i - 1)
                                 .group_by(DeterminingState.determiningStateId))
-    
+
+    # if doesn't exist add
     if query.count() == 0:
         determining_state = DeterminingState()
         db_session.add(determining_state)
-        for (i, word) in enumerate(lastWords):
+        for (i, word) in enumerate(last_words):
             determining_word = DeterminingWord(word, n - i - 1)
             determining_state.determiningWords.append(determining_word)
             db_session.add(determining_word)
@@ -105,8 +109,10 @@ def findDeterminingStateId(lastWords) -> int:
         db_session.commit()
         determining_state_id = determining_state.determiningStateId
         return determining_state_id
-    number = query.first().determiningStateId
-    return number
+
+    # else get the id
+    determining_state_id = query.first().determiningStateId
+    return determining_state_id
 
     
 def saveLogWord(logWord):
@@ -142,7 +148,7 @@ def addDeterminedWord(word, determiningStateId):
 
 def findDeterminedWords(lastWords):
     from models import DeterminedWord, Word, DeterminingState
-    determiningStateId = findDeterminingStateId(lastWords)
+    determiningStateId = find_determining_state_id(lastWords)
     query = db_session.query(DeterminedWord).join(Word).join(DeterminingState).add_columns(Word.label, DeterminedWord.number).filter_by(determiningStateId = determiningStateId)
     pairs = []
     if query.count() > 0:
