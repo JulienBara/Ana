@@ -13,29 +13,30 @@ Base = declarative_base()
 Base.query = db_session.query_property()
 
 
-def initDb():
+def init_db():
     from models import DeterminedWord, DeterminingState, DeterminingWord, Word, LogWord
     # Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
 
-def dropDb():
+def drop_db():
     from models import DeterminedWord, DeterminingState, DeterminingWord, Word, LogWord
     Base.metadata.drop_all(bind=engine)
 
 
-def clearDeterminedWord():
+def clear_determined_word():
     from models import DeterminedWord
     DeterminedWord.__table__.drop(engine)
     DeterminedWord.__table__.create(engine)
 
 
-def clearDeterminingWord():
+def clear_determining_word():
     from models import DeterminingWord
     DeterminingWord.__table__.drop(engine)
     DeterminingWord.__table__.create(engine)
 
-def clearDeterminingState():
+
+def clear_determining_state():
     from models import DeterminingState
     DeterminingState.__table__.drop(engine)
     DeterminingState.__table__.create(engine)
@@ -158,13 +159,15 @@ def find_determined_words(lastWords):
 
     return pairs
 
-def getMaxMarkovDegree():
+
+def get_max_markov_degree():
     from models import MaxMarkovDegree
     query = db_session.query(MaxMarkovDegree)
     degree = query.first().maxMarkovDegree
     return degree
 
-def setMaxMarkovDegree(newMaxMarkovDegree):
+
+def set_max_markov_degree(newMaxMarkovDegree):
     from models import MaxMarkovDegree
     query = db_session.query(MaxMarkovDegree).first()
     query.maxMarkovDegree = newMaxMarkovDegree
