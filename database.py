@@ -139,16 +139,23 @@ def add_determined_word(word_label: str, determiningStateId: int):
         db_session.commit()
 
 
-def findDeterminedWords(lastWords):
+def find_determined_words(lastWords):
     from models import DeterminedWord, Word, DeterminingState
-    determiningStateId = find_determining_state_id(lastWords)
-    query = db_session.query(DeterminedWord).join(Word).join(DeterminingState).add_columns(Word.label, DeterminedWord.number).filter_by(determiningStateId = determiningStateId)
+
+    determining_state_id = find_determining_state_id(lastWords)
+
+    query = db_session\
+        .query(DeterminedWord)\
+        .join(Word)\
+        .join(DeterminingState)\
+        .add_columns(Word.label, DeterminedWord.number)\
+        .filter_by(determiningStateId=determining_state_id)
+
     pairs = []
     if query.count() > 0:
         for word in list(query.all()):
             pairs.append((word.label, word.number))
-    # to close query
-    result = db_session.execute(query)
+
     return pairs
 
 def getMaxMarkovDegree():

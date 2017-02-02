@@ -172,7 +172,7 @@ def learn(message, chat_id, lastWords):
 def learnAState(word, lastWords):
     if len(lastWords) == CONST_NUMBER_WORDS_MARKOV_STATE:
         determiningStateId = database.find_determining_state_id(lastWords)
-        database.addDeterminedWord(word, determiningStateId)
+        database.add_determined_word(word, determiningStateId)
 
 
 def getBestWeightedRandomMessage(listWeightedMessages) -> str:
@@ -192,7 +192,7 @@ def speakIfNeeded(lastWords) -> str:
         message = " "
         i = 0
         while True:
-            words = database.findDeterminedWords(lastWords)
+            words = database.find_determined_words(lastWords)
             word = ""
             if len(words) > 0:
                 word = getBestWeightedRandomMessage(words)
