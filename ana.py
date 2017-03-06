@@ -14,34 +14,6 @@ import database
 
 
 # --------------------------
-#  Inits
-# --------------------------
-
-# Declare consts
-CONST_NUMBER_SILENT_MESSAGES = 10
-
-# Declare globals and init
-global CONST_NUMBER_WORDS_MARKOV_STATE
-CONST_NUMBER_WORDS_MARKOV_STATE = database.get_max_markov_degree()
-
-global mute
-mute = True
-
-global silentMessages
-silentMessages = 0
-
-lastWordsDictionnary = dict()
-
-key = open('keys/key').read().splitlines()[0]
-
-
-# Set logging level
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
-
-
-# --------------------------
 #  Basic commands
 # --------------------------
 
@@ -219,18 +191,54 @@ def charge_logs():
 
 
 # --------------------------
-#  Set up process
+#  Main
 # --------------------------
 
-updater = Updater(key)
-dispatcher = updater.dispatcher
+def main():
+	# --------------------------
+	#  Inits
+	# --------------------------
 
-# dispatcher.add_handler(CommandHandler('startAna', start))
-# dispatcher.add_handler(CommandHandler('drop_db', reinit_ana))
-dispatcher.add_handler(CommandHandler('mute', do_mute))
-dispatcher.add_handler(CommandHandler('unmute', unmute))
-# dispatcher.add_handler(CommandHandler('changeMarkov', change_markov_degree, pass_args=True))
-dispatcher.add_handler(MessageHandler(Filters.text, ana))
+	# Declare consts
+	CONST_NUMBER_SILENT_MESSAGES = 10
 
-updater.start_polling()
-updater.idle()
+	# Declare globals and init
+	global CONST_NUMBER_WORDS_MARKOV_STATE
+	CONST_NUMBER_WORDS_MARKOV_STATE = database.get_max_markov_degree()
+
+	global mute
+	mute = True
+
+	global silentMessages
+	silentMessages = 0
+
+	lastWordsDictionnary = dict()
+
+	key = open('keys/key').read().splitlines()[0]
+
+
+	# Set logging level
+	logging.basicConfig(level=logging.DEBUG,
+						format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+	# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+
+	# --------------------------
+	#  Set up process
+	# --------------------------
+
+	updater = Updater(key)
+	dispatcher = updater.dispatcher
+
+	# dispatcher.add_handler(CommandHandler('startAna', start))
+	# dispatcher.add_handler(CommandHandler('drop_db', reinit_ana))
+	dispatcher.add_handler(CommandHandler('mute', do_mute))
+	dispatcher.add_handler(CommandHandler('unmute', unmute))
+	# dispatcher.add_handler(CommandHandler('changeMarkov', change_markov_degree, pass_args=True))
+	dispatcher.add_handler(MessageHandler(Filters.text, ana))
+
+	updater.start_polling()
+	updater.idle()
+
+
+if __name__ == "__main__":
+    main()
